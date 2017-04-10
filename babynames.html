@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Raking babynames</title>
+<script>
+
+function showUser(){
+ 
+  var e = document.getElementById("gender");
+var gender = e.options[e.selectedIndex].text;
+	
+	var f = document.getElementById("year");
+var year = f.options[f.selectedIndex].text;
+  
+ 
+  if (window.XMLHttpRequest) {
+    
+    xmlhttp=new XMLHttpRequest();
+  } else { 
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.onreadystatechange=function() {
+    if (this.readyState==4 && this.status==200) {
+      document.getElementById("div").innerHTML=this.responseText;
+    }
+	
+  }
+  alert("Fetching names");
+  xmlhttp.open("GET","babynames.php?q="+gender+"&r="+year,true);
+  xmlhttp.send();
+}
+</script>
+</head>
+<body>
+<h1>Display babynames according to ranking</h1>
+<div id="div">
+<h3>Select a gender</h3>
+<select name="gender" id="gender">
+
+<option value=""></option>
+<option value="m">m</option>
+<option value="f">f</option>
+</select>
+<h3>Select a year</h3>
+<select name="year" id="year">
+
+<option value=""></option>
+<option value="2015">2015</option>
+<option value="2014">2014</option>
+<option value="2013">2013</option>
+<option value="2012">2012</option>
+<option value="2012">2011</option>
+<option value="2012">2010</option>
+<option value="2012">2009</option>
+<option value="2012">2008</option>
+<option value="2012">2007</option>
+<option value="2012">2006</option>
+<option value="2012">2005</option>
+</select>
+<p><button type="submit" onclick="showUser()">Get Babynames</button></p>
+</div>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+    width: 20%;
+    border-collapse: collapse;
+}
+
+table, td, th {
+    border: 1px solid black;
+    padding: 1px;
+}
+
+th {text-align: left;}
+</style>
+</head>
+<body>
+<?php
+
+
+echo "<br/><br/>";
+$con = mysqli_connect('localhost','root','root','hw3');
+
+if (!$con) {
+    die('Could not connect: ' . mysqli_error($con));
+}
+
+$gender=$_REQUEST['q'];
+$year=$_REQUEST['r'];
+//echo $gender;
+//echo $year;
+if($gender==null){
+	$sql = "SELECT name,rank,year,gender FROM babynames WHERE year=$year";
+	//$result = mysqli_query($con,$sql);
+}
+else if($year==null){
+	$sql = "SELECT name,rank,year,gender FROM babynames WHERE gender='$gender'";
+
+  // $result = mysqli_query($con,$sql);
+}
+else if($year==null && $gender==null){
+	$sql="select name,rank from babynames";
+}
+else{
+$sql = "SELECT name,rank,year,gender FROM babynames WHERE gender='$gender' and year=$year";
+//$result = mysqli_query($con,$sql);
+}
+
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+	echo "Here are the most popupular babynames along with thier ranks!";
+echo "<table>
+<tr>
+<th>Name</th>
+<th>Rank</th>
+<th>Year</th>
+<th>Gender</th>
+</tr>";
+while($row = $result->fetch_assoc()) {
+    echo "<tr>";
+    echo "<td>" . $row['name'] . "</td>";
+    echo "<td>" . $row['rank'] . "</td>";
+	echo "<td>" . $row['year'] . "</td>";
+	echo "<td>" . $row['gender'] . "</td>";
+    echo "</tr>";
+}
+echo "</table>";
+}
+else{
+	echo "Please select either year or gender, or both!";
+}
+mysqli_close();
+?>
+</body>
+</html>
+
+
+
+
